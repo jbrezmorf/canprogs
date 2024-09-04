@@ -17,17 +17,15 @@
  *  see http://www.gnu.org/licenses/ .
  */
 
-Das beiliegende Programm can_logger ist auf einem Raspberry Pi lauffähig. Es kann mit 
+The included program can_logger can run on a Raspberry Pi. It can be generated with:
 
   ./can_logger.arm
 
-erzeugt werden. 
-
-Mit dem Aufruf
+When calling:
 
   ./can_logger
 
-sehen Sie:
+you will see:
 
 can-bus data logger
 copyright (c) 2014 Jürg Müller, CH-5524
@@ -43,56 +41,55 @@ or       ./can_logger can1 3600 canlog csv
 can dev: can0
 sample time: 10 sec
 
-1. Beispiel (oben): mysql-host ist 192.168.1.137; ausgelesen wird im 10-Sekunden-Takt
+1. Example (above): MySQL host is 192.168.1.137; the data is read every 10 seconds.
 
-2. Beispiel: Die Daten werden in der Datei canlog_DATUM abgelegt; ausgelesen wird im Stunden-Takt; zu jedem Tag gibt es eine Datei
+2. Example: The data is stored in the file canlog_DATUM; the data is read every hour; a new file is created for each day.
 
-csv (comma separated values): Die Werte werden durch ein Komma getrennt. (Wird z.B. von Excel verwendet.) 
+csv (comma separated values): The values are separated by commas. (Used, for example, by Excel.) 
 
-mysql: can_logger schreibt in die MySQL-Tabelle "can_log" (vgl. create.sql). 
-
-_______________________________________________________________
-
-Zweck des Programms can_logger:
-
-a) can-Datenfluss in einer Bash zu betrachten. Z.B. die Antwort zu einer "cansend" anzusehen.
-
-b) can-Protokolle in einer Datei zu hinterlegen. Da der Raspberry Pi mit einer Flash-Karte arbeitet, sollte nicht allzu oft gespeichert werden (Flash hat nur 100k oder 200k Schreibzyklen), deshalb kann man eine "sample time" von 10 Minuten und mehr wählen.
-
-c) can-Protokolle in einer entfernten MySQL-Datenbank speichern. Siehe dazu auch die Änderungen/Erweiterung vom 8.9.2014.
- 
-_______________________________________________________________
-
-Änderungen:
-
-- 8. 9. 2014: siehe unten
-
-- 12. 9. 2014: <sample time in sec> ist nun der 2. Parameter (vorher war es der dritte).
+mysql: can_logger writes in the MySQL table "can_log" (see create.sql). 
 
 _______________________________________________________________
 
+# Purpose of the program can_logger:
 
-can_logger arbeitet mit 2 Threads (unabhängige "Ausführungs-Objekte"). Der eine Thread liest die Can-Bus-Frames und speichert sie in einem Ring-Puffer (mit 10240 Frames) ab. Der andere, der "Main-Thread", entleert den Ring-Puffer. Die Zeit zwischen den Entleerungen kann vorgegeben werden (<sample time in sec>). Sie wird nicht abgewartet, wenn der Ring-Puffer zu 3/4 voll ist, dann wird sofort ausgelesen. Die Daten können wahlweise in einer lokalen Datei oder in einer MySQL-Datenbank gespeichert werden. 
+a) To view the can data flow in a Bash shell. For example, to see the response to a "cansend" command.
 
-Das Programm ist sehr performant! 
-Ausgetestet mit MCP2515 Can-Bus Demo Board von Microchip als Sender und dem Raspberry Pi als Empfänger: 
-  60 Can-Frames pro Sekunde bei einer Can-Bus-Bitrate von 125000 bit/s, 
-  "sample time" von 10 Sekunden und 
-  einer MySQL-Datenbank im Netz (Parameter "mysql")
+b) To store can protocols in a file. Since the Raspberry Pi works with a flash card, saving too frequently should be avoided (flash has only 100k or 200k write cycles), which is why a "sample time" of 10 minutes or more can be selected.
+
+c) To store can protocols in a remote MySQL database. See also the changes/extensions of 8.9.2014.
 
 _______________________________________________________________
 
-Voraussetzungen für die Generierung und Verwendung von can_logger:
+# Changes:
 
-- Header: can.h, raw.h und mysql.h
+- 8. 9. 2014: see below
 
-- library: libmysqlclient (wird dynamisch geladen)
+- 12. 9. 2014: <sample time in sec> is now the second parameter (previously it was the third).
 
-- geladene Module (vgl. candump): spi-bcm2708.ko, can.ko, can-dev.ko, can-raw.ko und mcp251x.ko 
+_______________________________________________________________
 
-________________________________________________________________
+can_logger works with 2 threads (independent "execution objects"). One thread reads the Can-Bus frames and stores them in a ring buffer (with 10240 frames). The other, the "main thread", empties the ring buffer. The time between the emptying can be predefined (<sample time in sec>). If the ring buffer is 3/4 full, it is emptied immediately without waiting for the sample time. The data can be stored either in a local file or in a MySQL database.
 
-Beispiel zur xml-File-Struktur (ist nicht fertig entwickelt): 
+The program is very efficient! 
+Tested with the MCP2515 Can-Bus Demo Board from Microchip as sender and the Raspberry Pi as receiver: 
+  60 Can-Frames per second at a Can-Bus bitrate of 125000 bit/s, 
+  "sample time" of 10 seconds, and 
+  a MySQL database on the network (parameter "mysql").
+
+_______________________________________________________________
+
+# Requirements for the generation and use of can_logger:
+
+- Headers: can.h, raw.h, and mysql.h
+
+- Library: libmysqlclient (dynamically loaded)
+
+- Loaded modules (see candump): spi-bcm2708.ko, can.ko, can-dev.ko, can-raw.ko, and mcp251x.ko 
+
+_______________________________________________________________
+
+# Example of the XML file structure (not fully developed):
 
 <?xml version="1.0" encoding="UTF-8" ?>
 <can>
@@ -113,61 +110,58 @@ Beispiel zur xml-File-Struktur (ist nicht fertig entwickelt):
 
 _______________________________________________________________
 
-Stichwörter: 
+# Keywords: 
   Raspberry Pi CAN-BUS 
-  Stiebel-Eltron Elster-Kromschröder Wärmepumpe WPL33 WPMII Wärmepumpen Manager WPM2
+  Stiebel-Eltron Elster-Kromschröder Heat Pump WPL33 WPMII Heat Pump Manager WPM2
   mysql logging
 
 _______________________________________________________________
 
-Änderungen vom 8.9.2014:
+# Changes from 8.9.2014:
 
-- Die MySQL-Tabelle log heisst neu "can_log" und die Struktur hat ebenfalls geändert (vgl. create.sql). (timestamp anstelle des Paars <date_stamp, ms_stamp>; flag wird nicht mehr mitgeführt)
+- The MySQL table "log" is now called "can_log" and the structure has also changed (see create.sql). (timestamp instead of the <date_stamp, ms_stamp> pair; the flag is no longer recorded.)
 
-- Ein Logging der gesamten anfallenden Can-Telegramme auf einer angemieteten Homepage mit MySQL-DB. Ich fand nicht heraus, wie ich direkt mittels einer MySQL-Client-Verbindung auf die DB zugreifen kann. Deshalb entschied ich mich, die Daten mit einem serverseitigen php-Skript in die DB zu schreiben.
-  
-  "can_logger" bereitet in diesem Fall einen Stream auf, in dem alle zu speichernden Telegramme in MySQL-"INSERTs" gepackt werden. Das Skript put_can_log.php nimmt den Stream auf dem HTTP-Server entgegen und speichert die "INSERTs" in der DB.
+- Logging of all incoming CAN telegrams on a rented homepage with a MySQL database. I couldn't figure out how to directly access the DB using a MySQL client connection, so I decided to write the data to the DB with a server-side PHP script.
+
+  "can_logger" prepares a stream in which all telegrams to be saved are packed in MySQL "INSERTs". The script *put_can_log.php* receives the stream on the HTTP server and stores the "INSERTs" in the database.
 
 _______________________________________________________________
 
-Vorgehen, um alle Telegramme in der MySQL-DB zu hinterlegen:
+# Procedure to store all telegrams in the MySQL database:
 
-- konfiguration.php mit den richtigen Daten versehen. PASS und PASS_VALUE mit beliebigem Zugangscode versehen (keine HTTP-Spezialzeichen verwenden). 
+- Provide the correct data in *konfiguration.php*. Set PASS and PASS_VALUE to any access code (do not use HTTP special characters). 
 
-- konfiguration.php und put_can_log.php auf den HTTP-Server kopieren.
+- Copy *konfiguration.php* and *put_can_log.php* to the HTTP server.
 
-- MySQL-Tabelle can_log auf dem Server generieren (vgl. create.sql).
+- Generate the MySQL table *can_log* on the server (see create.sql).
 
-- can_log.xml anpassen (wird auf dem Raspi verwendet). 
+- Adjust *can_log.xml* (used on the Raspberry Pi).
 
-- zum Ausprobieren auf dem Raspi 
+- To test on the Raspberry Pi:
 
     $./can_logger can_log.xml trace 
 
-  verwenden. Wenn das soweit i.O. ist: "trace" weglassen. Es wird dann nach jedem Übertragungsintervall die letzte CAN-Protokoll-Zeile ausgegeben. Die Zeile mit "result" wird vom php-Skript generiert.
+  If everything is fine, remove "trace". After each transmission interval, the last CAN protocol line is output. The line with "result" is generated by the PHP script.
 
     215  8.9.2014 14:22:25.340  14611234 00 [4] 00 01 02 03              ....
     result: Ok: 216   not Ok: 0
 
 _______________________________________________________________
 
-Erweiterung vom 22. Sept. 2014:
+# Extension from 22. Sept. 2014:
 
-Der CAN232 von Lawicel kann verwendet werden. Der Aufruf auf dem MAC ist z.B.
+The CAN232 from Lawicel can be used. The call on the Mac, for example, is:
 
   mac/can_logger tty.usbserial-FTK1S17H 0
 
-Hinweis: das Device findet man im Verzeichnis /dev (ls /dev/tty*) 
+Note: the device can be found in the /dev directory (ls /dev/tty*)
 
-Für Windows:
+For Windows:
 
   win/can_logger COM3 0
 
 _______________________________________________________________
 
-Erweiterung vom 15. Nov. 2014:
+# Extension from 15. Nov. 2014:
 
-Control-C wird abgefangen. Danach wird das Programm ordnungsgemäss beendet.
-
-
-
+Control-C is intercepted. Afterward, the program terminates properly.
