@@ -1,12 +1,20 @@
-rm can_logger
+#!/bin/bash
+set -x
+
+rm -f can_logger
+source ./config.sh
 
 mysql_flag=""
 if [ -f /usr/include/mysql/mysql.h ]
 then
+  echo "Found MYSQL ... enablad"
   mysql_flag="-D__MYSQL__"
 fi
 
-${CROSS_COMPILE}g++ -Wall $1 $2 -D__LINUX__ -D__ARM__ -D__CAN__ -D__CONSOLE__ $mysql_flag -lc -lpthread -ldl \
+
+defs="-D__LINUX__ -D__ARM__ -D__CONSOLE__ -D__CAN__ -D__PYTHON__"
+
+${CROSS_COMPILE}g++ -std=c++11 -Wall ${INCLUDE} ${defs} $mysql_flag -lc -lpthread -ldl \
   CanLogger.cpp \
   KIpSocket.cpp \
   KThread.cpp \

@@ -1,7 +1,11 @@
-rm elster_py.so
+#!/bin/bash
+# Always rebuild.
+rm -f elster_py.so
+source ./config.sh
 
-${CROSS_COMPILE}g++ -shared -fPIC -Wall -D__LINUX__ -D__ARM__ -D__CONSOLE__ -D__CAN__ -D__PYTHON__ -I/usr/include/python3.4 \
-  -L/usr/lib/python3.4/config-3.4m-arm-linux-gnueabihf -lc -lpthread -lpython3.4m \
+defs="-D__LINUX__ -D__ARM__ -D__CONSOLE__ -D__CAN__ -D__PYTHON__"
+
+${CROSS_COMPILE}g++ -std=c++11 -shared -fPIC -Wall ${defs} ${INCLUDE} ${PY_LIB} -lc -lpthread \
   KIpSocket.cpp \
   KThread.cpp \
   KCriticalSection.cpp \

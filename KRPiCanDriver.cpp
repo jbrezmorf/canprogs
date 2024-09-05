@@ -21,6 +21,10 @@
 
 #if defined(__LINUX__)
 
+// explicitely disable this C99 feature as it is in conflict with
+// recent definition of cmsghdr in socket.h
+#undef __glibc_c99_flexarr_available
+
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/types.h>
